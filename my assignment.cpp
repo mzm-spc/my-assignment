@@ -1,0 +1,74 @@
+#include <iostream>
+#include <string>
+#include <cctype>
+
+using namespace std;
+
+bool isKeyword(const string& word) {
+    return word == "int" || word == "if" || word == "return" || word == "for" || word == "float" || word == "double";
+}
+
+void tokenize(const string& code) {
+    string token;
+    for (size_t i = 0; i < code.size(); ++i) {
+        char ch = code[i];
+
+        // Skip whitespace
+        if (isspace(ch)) continue;
+
+        // Identifiers or Keywords
+        if (isalpha(ch)) {
+            token = "";
+            while (i < code.size() && (isalnum(code[i]) || code[i] == '_')) {
+                token += code[i++];
+            }
+            --i;
+            if (isKeyword(token))
+                cout << "<" << token << ", KEYWORD>\n";
+            else
+                cout << "<" << token << ", IDENTIFIER>\n";
+        }
+
+        // Numbers (support for float and int)
+        else if (isdigit(ch)) {
+            token = "";
+            bool hasDot = false;
+            while (i < code.size() && (isdigit(code[i]) || code[i] == '.')) {
+                if (code[i] == '.') hasDot = true;
+                token += code[i++];
+            }
+            --i;
+            if (hasDot)
+                cout << "<" << token << ", FLOAT>\n";
+            else
+                cout << "<" << token << ", NUMBER>\n";
+        }
+
+        // ++ or --
+        else if ((ch == '+' || ch == '-') && i + 1 < code.size() && code[i + 1] == ch) {
+            cout << "<" << ch << ch << ", OPERATOR>\n";
+            ++i; // Skip next char too
+        }
+
+        // Single-char operators
+        else if (ch == '=' || ch == '+' || ch == '-') {
+            cout << "<" << ch << ", OPERATOR>\n";
+        }
+
+        // Separators
+        else if (ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == ';') {
+            cout << "<" << ch << ", SEPARATOR>\n";
+        }
+
+        // Unknown
+        else {
+            cout << "<" << ch << ", UNKNOWN>\n";
+        }
+    }
+}
+
+int main() {
+    string code = "float pi = 3.14; for (int i = 0; i < 10; i++) { pi = pi + 1.0; } return pi;";
+    tokenize(code);
+    return 0;
+}
